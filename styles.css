@@ -85,6 +85,7 @@ input:focus{
 }
 
 .randomIngredients{
+    margin-top: 5vh;
     color: black;
     position: absolute;
     top: 50%;
@@ -119,6 +120,7 @@ input:focus{
 }
 .ingredients {
     color: black;
+    margin-top: 5vh;
     position: absolute;
     top: 50%;
     left: 50%;
