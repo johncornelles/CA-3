@@ -31,7 +31,6 @@ const randomHandler = async () => {
   try {
     let data = await randomrefresher();
     let mealdata = data.meals[0];
-    console.log(mealdata);
     let returner = `
       <img src="${mealdata.strMealThumb}" height="200px" width="200px" alt="random food" class="foodRandom">
       <div class="detailsRandom">
@@ -137,8 +136,6 @@ const searchHandler = async (query) => {
                     </pre>
                 </div>`;
             resultsDiv.innerHTML += fragment;
-            console.log(meal);
-            console.log('data', data);
             resultsDiv.addEventListener('click', (e) => {
                 if (e.target.classList.contains(`${data.idMeal}`)) {
                     displayIngredients(data);
