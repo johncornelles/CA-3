@@ -117,7 +117,7 @@ const searchHandler = async (query) => {
             throw new Error('Invalid input');
         }
         document.querySelector('.resultTitle').textContent = 'Results';
-        meals = meals.splice(0, 10);
+        meals = meals.splice(0, 14);
         for (let meal of meals) {
             let x = await searchDatafetcher(meal.idMeal);
             let data = x.meals[0];

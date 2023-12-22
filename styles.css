@@ -4,7 +4,7 @@
     padding: 0;
     box-sizing: border-box;
     font-family: 'Jura', sans-serif;
-    transition: 0.5s;
+    transition: 0.4s;
 }
 :root{
     --primary-color: #E71727;
@@ -54,7 +54,12 @@ input{
     border-radius: 14px 0 0 14px;
 }
 
+a{
+    text-decoration: none;
+}
+
 input:focus{
+    transition: none;
     border-left: 3px solid var(--primary-color);
     border-bottom: 3px solid var(--primary-color);
     border-top: 3px solid var(--primary-color);
