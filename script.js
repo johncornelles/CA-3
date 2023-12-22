@@ -15,6 +15,7 @@ const container = document.querySelector('.container');
 const randomIngredients = document.querySelector('.randomIngredients');
 const resultsDiv = document.querySelector('.results');
 const ingredientsDiv = document.querySelector('.ingredients');
+const searcdiv = document.querySelector('.searchIcondiv')
 
 const randomrefresher = async () => {
   try {
@@ -48,11 +49,18 @@ const randomHandler = async () => {
       </div>`;
     genie.innerHTML = returner;
     surpriseButton = document.querySelector('.surprise');
-    let IngredientsArr = `<pre> <b>${mealdata.strMeal}</b>\n \n<b>Ingredients</b> \n`
-    for (let i in mealdata) {
-        if (i.includes('strIngredient') && mealdata[i] != '') IngredientsArr += `\n  ${mealdata[i]} \n`
+    let IngredientsArr = `<pre>\n<b>${mealdata.strMeal}</b>\n\n<b>Ingredients</b>\n`;
+    for (let i = 1; i <= 20; i++) {
+        const ingredient = mealdata[`strIngredient${i}`];
+        const measure = mealdata[`strMeasure${i}`]
+        if (ingredient && measure && ingredient != null && measure != null && ingredient.trim() != '' && measure.trim() != '')  {
+            IngredientsArr += `\n ${measure} ${ingredient} \n`;
+        }
     }
-    IngredientsArr += `\n \n <button class="close btn">Close</button> <a href="${mealdata.strSource}" target="_blank" class="recipe btn">Recipe</a> </pre>`
+
+IngredientsArr += `\n<button class="close btn">Close</button>      <a href="${mealdata.strSource}" target="_blank" class="recipe btn">Recipe</a>\n</pre>`;
+randomIngredients.innerHTML = IngredientsArr;
+
     randomIngredients.innerHTML = IngredientsArr
   } catch (error) {
     console.error(error);
@@ -75,13 +83,16 @@ const searchDatafetcher = async (id) => {
 }
 
 const displayIngredients = (data) => {
+            window.scrollTo({
+              top: 0,
+              behavior: "smooth"
+            })
             let fragment = `<pre>\n<b>${data.strMeal}</b>\n\n<b>Ingredients</b>\n`;
-            // console.log(data, '79')
             for (let i = 1; i <= 20; i++) {
                 const ingredient = data[`strIngredient${i}`];
                 const measure = data[`strMeasure${i}`];
 
-                if (ingredient && measure) 
+                if (ingredient && measure && ingredient != null && measure != null && ingredient.trim() != '' && measure.trim() != '') 
                     fragment += `\n ${measure} ${ingredient} \n`;
                 
             }
@@ -95,48 +106,49 @@ const displayIngredients = (data) => {
         };
 
 const searchHandler = async (query) => {
-    let mealdata = await categoryFetcher(query);
-    let meals = mealdata.meals;
-    meals = meals.splice(0, 10)
+    try {
 
-    for (let meal of meals) {
-        let x = await searchDatafetcher(meal.idMeal);
-        let data = x.meals[0];
-        let i = 1
-        let fragment = `
-            <div class="item${data.idMeal} card">
-                <img src="${data.strMealThumb}" height="200px" width="200px" alt="random food">
-                <pre>
-                
-                    <b>${data.strMeal}</b>
-
-                    ${data.strCategory}
-
-                    ${data.strArea}stringify
-
-
-                    <a href="${data.strSource}" target="_blank" class="btn recipe">Recipe</a> <button class="btn btn-ingredients-search ingredientsbtn${data.idMeal} ${data.idMeal}">Ingredients</button>
-                </pre>
-                    
-            </div>`;
-        resultsDiv.innerHTML += fragment;
-        console.log(meal)
-        console.log('data', data)
-        resultsDiv.addEventListener('click', (e) => {
-        if(e.target.classList.contains(`${data.idMeal}`)){
-          displayIngredients(data)
+        if (!query.trim()) {
+            throw new Error('Invalid input');
         }
-})
-    }
-    // document.querySelectorAll('.btn-ingredients-search').forEach((btn) => {
-    //     let x = btn.getAttribute('data-mealdata');
-    //     // let y = JSON.parse(x)
-    //     console.log(x)
-    // })
-    // document.querySelectorAll('.btn-ingredients-search').forEach((btn) => {
-    //     btn.onclick = () => {console.log(btn.getAttribute('data-mealdata'))}
-    // })
 
+        let mealdata = await categoryFetcher(query.trim());
+        let meals = mealdata.meals;
+        if (meals.length === 0) {
+            throw new Error('Invalid input');
+        }
+        document.querySelector('.resultTitle').textContent = 'Results';
+        meals = meals.splice(0, 10);
+        for (let meal of meals) {
+            let x = await searchDatafetcher(meal.idMeal);
+            let data = x.meals[0];
+            const mealName = `<b>${data.strMeal.slice(0, 20)}</b>`;
+            let fragment = `
+                <div class="item${data.idMeal} card">
+                    <img src="${data.strMealThumb}" height="200px" width="200px" alt="random food">
+                    <pre>
+                        <b>${mealName}</b>
+
+                        ${data.strCategory}
+
+                        ${data.strArea}
+
+                        <a href="${data.strSource}" target="_blank" class="btn recipe">Recipe</a>    <button class="btn btn-ingredients-search ${data.idMeal}">Ingredients</button>
+                    </pre>
+                </div>`;
+            resultsDiv.innerHTML += fragment;
+            console.log(meal);
+            console.log('data', data);
+            resultsDiv.addEventListener('click', (e) => {
+                if (e.target.classList.contains(`${data.idMeal}`)) {
+                    displayIngredients(data);
+                }
+            });
+        }
+    } catch (error) {
+       document.querySelector('.resultTitle').textContent = 'Invalid Input';
+       resultsDiv.innerHTML = ''
+    }
 };
 
 window.onload = async () => {
@@ -144,8 +156,13 @@ window.onload = async () => {
 
   container.onclick = (e) => {
     if(e.target.classList.contains('surprise')) randomHandler()
-    if (e.target.classList.contains('IngredientsRandombtn'))
+    if (e.target.classList.contains('IngredientsRandombtn')){
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      })
     randomIngredients.style.display = 'block';
+    }
   }
 };
 
@@ -153,4 +170,16 @@ randomIngredients.onclick = (e) => {
   if (e.target.classList.contains('close')) randomIngredients.style.display = 'none'; 
 };
 
-queryInput.addEventListener('keypress', (e) => {if(e.key == 'Enter' && queryInput.value.trim() != '') searchHandler(queryInput.value)})
+queryInput.addEventListener('keypress', (e) => {
+  if(e.key == 'Enter' && queryInput.value.trim() != '') searchHandler(queryInput.value)
+  resultsDiv.innerHTML = ''
+})
+
+searcdiv.onclick = () => {
+  if(queryInput.value.trim() != '') {
+    searchHandler(queryInput.value)
+    resultsDiv.innerHTML = ''
+  }
+}
+
+logoDiv.onclick = () => window.location.reload()
